@@ -1,0 +1,28 @@
+name: Issue assignment
+
+on:
+  workflow_call:
+    secrets:
+      PERSONAL_ACCESS_TOKEN:
+        required: true
+
+jobs:
+  auto-assign:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - name: 'Auto-assign issue'
+        uses: pozil/auto-assign-issue@v2
+        with:
+          assignees: azavech
+          allowSelfAssign: true
+
+  add-to-project:
+    name: Add issue to project
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/add-to-project@v1.0.2
+        with:
+          project-url: https://github.com/orgs/yeencloud/projects/5
+          github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
