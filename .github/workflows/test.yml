@@ -21,4 +21,4 @@ jobs:
         run: go mod tidy -v
 
       - name: Lint and Test
-        uses: AliceDiNunno/action-go-test-and-lint@v0.4.0 
+        uses: AliceDiNunno/action-go-test-and-lint@v0.4.1
