@@ -203,7 +203,6 @@ linters:
     - reassign
     - revive
     - sqlclosecheck
-    - staticcheck
     - tagliatelle
     - testifylint
     - unparam
