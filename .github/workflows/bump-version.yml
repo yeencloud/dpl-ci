@@ -28,10 +28,9 @@ jobs:
       - name: Echo VERSION
         run: echo "${{ steps.semvers.outputs.patch }}"
 
-      - name: Set new version
-        uses: wow-actions/update-file@v1
-        with:
-          GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-          path: VERSION
-          content: '${{ steps.semvers.outputs.patch }}'
-          commit_message: 'Bump version to ${{ steps.semvers.outputs.patch }}'
+      - name: Bump version in VERSION file
+        id: bump
+        run: |
+          echo "${{ steps.semvers.outputs.patch }}" > VERSION 
+          git commit -m "Bump version to ${{ steps.semvers.outputs.patch }}" VERSION
+          git push origin HEAD:main
