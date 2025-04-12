@@ -28,6 +28,11 @@ jobs:
       - name: Echo VERSION
         run: echo "${{ steps.semvers.outputs.patch }}"
 
+      - name: Set Git Identity
+        run: |
+          git config user.email "bump-version@yeenbot.io"
+          git config user.name "Version Bumper"
+
       - name: Bump version in VERSION file
         id: bump
         run: |
