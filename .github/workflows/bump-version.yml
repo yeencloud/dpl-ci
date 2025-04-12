@@ -18,3 +18,19 @@ jobs:
 
       - name: Echo VERSION
         run: echo "${{ steps.version.outputs.content }}"
+
+      - name: 'Get next minor version'
+        id: semvers
+        uses: "WyriHaximus/github-action-next-semvers@v1"
+        with:
+          version: ${{ steps.version.outputs.content }}
+
+      - name: Echo VERSION
+        run: echo "${{ steps.semvers.outputs.patch }}"
+
+      - name: Set new version
+        with:
+          file-path: ./VERSION
+          content: "${{ steps.semvers.outputs.patch }}"
+          commit-message: "chore: bump version to ${{ steps.semvers.outputs.patch }}"
+          commit-branch: ${{ github.ref }}
