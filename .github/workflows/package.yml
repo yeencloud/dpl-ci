@@ -39,6 +39,6 @@ jobs:
             GITHUB_REPOSITORY_URL=${{ github.repositoryUrl }}
             APP_VERSION=${{ steps.version.outputs.content }}
           push: true
-          tags: ghcr.io/${{ github.repository }}:latest
+          tags: ghcr.io/${{ github.repository }}:latest,ghcr.io/${{ github.repository }}:${{ steps.version.outputs.content }}
           platforms: linux/arm64, linux/amd64
           outputs: type=image,name=target,annotation-index.org.opencontainers.image.source=https://github.com/${{ github.repository }}
