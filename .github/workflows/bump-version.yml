@@ -10,9 +10,37 @@ jobs:
   package:
     runs-on: self-hosted
     steps:
-      - name: Update version
-        uses: pocket-apps/action-update-version@v1
+      - name: Read version
+        id: version
+        uses: juliangruber/read-file-action@v1
         with:
-          files: 'VERSION'
-          version-regexp: 'v\d+.\d+.\d+'
-          repo-token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          path: ./VERSION
+
+      - name: Echo VERSION
+        run: echo "${{ steps.version.outputs.content }}"
+
+      - name: 'Get next minor version'
+        id: semvers
+        uses: "WyriHaximus/github-action-next-semvers@v1"
+        with:
+          version: ${{ steps.version.outputs.content }}
+
+      - name: Echo VERSION
+        run: echo "${{ steps.semvers.outputs.patch }}"
+
+      - name: Set Git Identity
+        run: |
+          git config user.email "bump-version@yeenbot.io"
+          git config user.name "Version Bumper"
+
+      - name: Bump version in VERSION file
+        id: bump
+        run: |
+          echo "${{ steps.semvers.outputs.patch }}" > VERSION 
+
+      - name: Update resources
+        uses: test-room-7/action-update-file@v1
+        with:
+          file-path: ./VERSION
+          commit-msg: Bump version to ${{ steps.semvers.outputs.patch }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
