@@ -39,8 +39,8 @@ jobs:
           echo "${{ steps.semvers.outputs.patch }}" > VERSION 
 
       - name: Update resources
-        uses: test-room-7/action-update-file@v1
+        uses: test-room-7/action-update-file@v2
         with:
-          file-path: ./VERSION
+          file-path: VERSION
           commit-msg: Bump version to ${{ steps.semvers.outputs.patch }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
