@@ -2,6 +2,9 @@ name: Test and Lint
 
 on:
   workflow_call:
+    secrets:
+      PERSONAL_ACCESS_TOKEN:
+        required: true
 
 jobs:
   test-and-lint:
@@ -34,3 +37,9 @@ jobs:
 
       - name: Create issues from TODOs
         uses: alstr/todo-to-issue-action@v5.1.11
+        with:
+          AUTO_ASSIGN: 'true'
+          PROJECT: yeencloud/projects/5
+          PROJECTS_SECRET: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          INSERT_ISSUE_URLS: 'true'
+          CLOSE_ISSUES: 'true'
