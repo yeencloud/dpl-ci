@@ -42,3 +42,14 @@ jobs:
           tags: ghcr.io/${{ github.repository }}:latest,ghcr.io/${{ github.repository }}:${{ steps.version.outputs.content }}
           platforms: linux/arm64, linux/amd64
           outputs: type=image,name=target,annotation-index.org.opencontainers.image.source=https://github.com/${{ github.repository }}
+
+      - name: Create GitHub Release and Tag
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.version.outputs.content }}
+          release_name: Release ${{ steps.version.outputs.content }}
+          body: "Release for version ${{ steps.version.outputs.content }}"
+          draft: false
+          prerelease: false
