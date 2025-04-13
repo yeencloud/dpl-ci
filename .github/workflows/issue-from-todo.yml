@@ -1,4 +1,4 @@
-name: Test and Lint
+name: Package
 
 on:
   workflow_call:
@@ -7,26 +7,7 @@ on:
         required: true
 
 jobs:
-  test-and-lint:
-    name: Test and Lint
-    runs-on: self-hosted
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v4
-
-      - name: Set up Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: "1.x"
-
-      - name: Run go mod tidy
-        run: go mod tidy -v
-
-      - name: Lint and Test
-        uses: AliceDiNunno/action-go-test-and-lint@v0.4.1
-
   issue-from-todos:
-    needs: test-and-lint
     runs-on: ubuntu-latest
     permissions:
       contents: read
