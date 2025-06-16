@@ -4,7 +4,7 @@ update:
 	mkdir -p .github/scripts
 	curl -O $(CI_RAW_URL)/makefile \
          -O $(CI_RAW_URL)/.golangci.yml \
-		 -O $(CI_RAW_URL)/.github/scripts/openapi-generate.sh
+		 -O $(CI_RAW_URL)/.github/scripts/openapi-generate.sh \
 		 -O $(CI_RAW_URL)/.github/config/oapi-codegen.yml
 lint:
 	golangci-lint run ./...
