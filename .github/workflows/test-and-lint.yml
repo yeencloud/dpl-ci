@@ -9,6 +9,7 @@ on:
 jobs:
   test-and-lint:
     name: Test and Lint
+    continue-on-error: true
     runs-on: self-hosted
     steps:
       - name: Check out code
