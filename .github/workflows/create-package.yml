@@ -29,16 +29,83 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push multi-arch image
+      # Optional: enable build cache so the second build reuses layers
+      - name: Configure Build Cache
+        id: cache
+        uses: actions/cache@v4
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
+
+      # Build & push AMD64 (single-arch) with arch-specific tags; capture digest
+      - name: Build amd64 image (push)
+        id: build_amd64
         uses: docker/build-push-action@v6
         with:
           context: .
+          platforms: linux/amd64
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}:${{ steps.version.outputs.content }}-amd64
+            ghcr.io/${{ github.repository }}:latest-amd64
           build-args: |
             GITHUB_SHA=${{ github.sha }}
             GITHUB_REPOSITORY=${{ github.repository }}
             GITHUB_REPOSITORY_URL=${{ github.repositoryUrl }}
             APP_VERSION=${{ steps.version.outputs.content }}
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
+          outputs: type=registry,name=ghcr.io/${{ github.repository }}
+
+      # Build & push ARM64 (single-arch) with arch-specific tags; capture digest
+      - name: Build arm64 image (push)
+        id: build_arm64
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          platforms: linux/arm64
           push: true
-          tags: ghcr.io/${{ github.repository }}:latest,ghcr.io/${{ github.repository }}:${{ steps.version.outputs.content }}
-          platforms: linux/arm64, linux/amd64
-          outputs: type=image,name=target,annotation-index.org.opencontainers.image.source=https://github.com/${{ github.repository }}
+          tags: |
+            ghcr.io/${{ github.repository }}:${{ steps.version.outputs.content }}-arm64
+            ghcr.io/${{ github.repository }}:latest-arm64
+          build-args: |
+            GITHUB_SHA=${{ github.sha }}
+            GITHUB_REPOSITORY=${{ github.repository }}
+            GITHUB_REPOSITORY_URL=${{ github.repositoryUrl }}
+            APP_VERSION=${{ steps.version.outputs.content }}
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
+          outputs: type=registry,name=ghcr.io/${{ github.repository }}
+
+      # Move the updated cache into place (optional, pairs with the cache steps above)
+      - name: Finalize build cache
+        if: always()
+        run: |
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+
+      # Create & push a multi-arch manifest pointing to the two single-arch digests
+      - name: Create multi-arch manifest (latest + version)
+        env:
+          VERSION: ${{ steps.version.outputs.content }}
+        run: |
+          set -eu
+
+          # Digests of the previously pushed single-arch images
+          AMD64_DIGEST="${{ steps.build_amd64.outputs.digest }}"
+          ARM64_DIGEST="${{ steps.build_arm64.outputs.digest }}"
+
+          REPO="ghcr.io/${{ github.repository }}"
+
+          # Create/overwrite the multi-arch indices with OCI annotations
+          docker buildx imagetools create \
+            --annotation "index.org.opencontainers.image.source=https://github.com/${{ github.repository }}" \
+            --tag "${REPO}:latest" \
+            --tag "${REPO}:${VERSION}" \
+            "${REPO}@${AMD64_DIGEST}" \
+            "${REPO}@${ARM64_DIGEST}"
+
+          # (Optional) show the manifest result
+          docker buildx imagetools inspect "${REPO}:latest"
