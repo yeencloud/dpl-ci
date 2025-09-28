@@ -39,6 +39,36 @@ jobs:
             GITHUB_REPOSITORY_URL=${{ github.repositoryUrl }}
             APP_VERSION=${{ steps.version.outputs.content }}
           push: true
-          tags: ghcr.io/${{ github.repository }}:latest,ghcr.io/${{ github.repository }}:${{ steps.version.outputs.content }}
-          platforms: linux/arm64, linux/amd64
+          tags: |
+            ghcr.io/${{ github.repository }}:latest
+            ghcr.io/${{ github.repository }}:${{ steps.version.outputs.content }}
+          platforms: linux/arm64,linux/amd64
+          outputs: type=image,name=target,annotation-index.org.opencontainers.image.source=https://github.com/${{ github.repository }}
+
+      - name: Build and push arm64-only tag
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          build-args: |
+            GITHUB_SHA=${{ github.sha }}
+            GITHUB_REPOSITORY=${{ github.repository }}
+            GITHUB_REPOSITORY_URL=${{ github.repositoryUrl }}
+            APP_VERSION=${{ steps.version.outputs.content }}
+          push: true
+          tags: ghcr.io/${{ github.repository }}:latest-arm64
+          platforms: linux/arm64
+          outputs: type=image,name=target,annotation-index.org.opencontainers.image.source=https://github.com/${{ github.repository }}
+
+      - name: Build and push amd64-only tag
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          build-args: |
+            GITHUB_SHA=${{ github.sha }}
+            GITHUB_REPOSITORY=${{ github.repository }}
+            GITHUB_REPOSITORY_URL=${{ github.repositoryUrl }}
+            APP_VERSION=${{ steps.version.outputs.content }}
+          push: true
+          tags: ghcr.io/${{ github.repository }}:latest-amd64
+          platforms: linux/amd64
           outputs: type=image,name=target,annotation-index.org.opencontainers.image.source=https://github.com/${{ github.repository }}
