@@ -10,7 +10,7 @@ jobs:
   test-and-lint:
     name: Test and Lint
     continue-on-error: true
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
       - name: Check out code
         uses: actions/checkout@v4
