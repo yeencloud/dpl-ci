@@ -8,11 +8,11 @@ on:
 
 jobs:
   package:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        
+
       - name: Read version
         id: version
         uses: juliangruber/read-file-action@v1
