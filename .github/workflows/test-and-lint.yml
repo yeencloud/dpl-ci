@@ -11,7 +11,6 @@ jobs:
     name: Test
     continue-on-error: true
     runs-on: ubuntu-latest
-    if: false
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -53,4 +52,4 @@ jobs:
       - name: golangci-lint ${{ matrix.modules }}
         uses: golangci/golangci-lint-action@v9
         with:
-          version: 2.7.2
+          version: v2.7.2
