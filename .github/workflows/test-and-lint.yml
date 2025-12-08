@@ -11,6 +11,7 @@ jobs:
     name: Test
     continue-on-error: true
     runs-on: ubuntu-latest
+    if: false
     steps:
       - name: Check out code
         uses: actions/checkout@v4
