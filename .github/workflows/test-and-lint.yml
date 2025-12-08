@@ -7,8 +7,8 @@ on:
         required: true
 
 jobs:
-  test-and-lint:
-    name: Test and Lint
+  test:
+    name: Test
     continue-on-error: true
     runs-on: ubuntu-latest
     steps:
@@ -25,3 +25,31 @@ jobs:
 
       - name: Lint and Test
         uses: AliceDiNunno/action-go-test-and-lint@v0.4.6
+
+  detect-modules:
+    runs-on: ubuntu-latest
+    outputs:
+      modules: ${{ steps.set-modules.outputs.modules }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-go@v6
+        with:
+          go-version: ${{ env.GO_VERSION }}
+      - id: set-modules
+        run: echo "modules=$(go list -m -json | jq -s '.' | jq -c '[.[].Dir]')" >> $GITHUB_OUTPUT
+
+  golangci-lint:
+    needs: detect-modules
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        modules: ${{ fromJSON(needs.detect-modules.outputs.modules) }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-go@v6
+        with:
+          go-version: latest
+      - name: golangci-lint ${{ matrix.modules }}
+        uses: golangci/golangci-lint-action@v9
+        with:
+          version: latest
